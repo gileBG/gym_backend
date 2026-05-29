@@ -16,12 +16,10 @@ public class ProgramService {
     private final ProgramRepository programRepository;
     private final UserRepository userRepository;
 
-    @PreAuthorize("hasAnyRole('ADMIN', 'TRENER', 'FRONT_DESK', 'MENADZER', 'CISTACICA')")
     public List<Program> getAll() {
         return programRepository.findAll();
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN', 'TRENER', 'FRONT_DESK', 'MENADZER', 'CISTACICA')")
     public Program getById(Long id) {
         return programRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Program nije pronađen."));

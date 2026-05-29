@@ -1,6 +1,7 @@
 package com.gym.user;
 
 import com.gym.membership.TipClanarine;
+import com.gym.notification.AccountNotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -15,6 +16,7 @@ public class VezbacService {
 
     private final VezbacRepository vezbacRepository;
     private final PasswordEncoder passwordEncoder;
+    private final AccountNotificationService accountNotificationService;
 
     @Transactional(readOnly = true)
     @PreAuthorize("hasAnyRole('ADMIN', 'FRONT_DESK', 'MENADZER', 'TRENER')")
@@ -64,7 +66,16 @@ public class VezbacService {
         vezbac.setEmail(request.getEmail());
         vezbac.setLozinka(passwordEncoder.encode(request.getLozinka()));
         vezbac.setTipClanarine(request.getTipClanarine() != null ? request.getTipClanarine() : TipClanarine.STANDARD);
-        return vezbacRepository.save(vezbac);
+
+        Vezbac savedVezbac = vezbacRepository.save(vezbac);
+
+        accountNotificationService.sendNewAccountNotification(
+            savedVezbac.getIme() + " " + savedVezbac.getPrezime(),
+            savedVezbac.getEmail(),
+            "VEZBAC"
+        );
+
+        return savedVezbac;
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'FRONT_DESK', 'MENADZER')")

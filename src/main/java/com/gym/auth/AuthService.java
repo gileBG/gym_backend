@@ -1,6 +1,8 @@
 package com.gym.auth;
 
-// import com.gym.user.Role;
+import com.gym.notification.AccountNotificationService;
+import com.gym.user.Vezbac;
+import com.gym.user.VezbacRepository;
 import com.gym.user.User;
 import com.gym.user.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -13,8 +15,10 @@ import org.springframework.transaction.annotation.Transactional;
 public class AuthService {
 
     private final UserRepository userRepository;
+    private final VezbacRepository vezbacRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
+    private final AccountNotificationService accountNotificationService;
 
     @Transactional
     public LoginResponse register(RegisterRequest request) {
@@ -32,33 +36,56 @@ public class AuthService {
         }
 
         user.setRola(request.getRola());
-        userRepository.save(user);
+        User savedUser = userRepository.save(user);
+
+        accountNotificationService.sendNewAccountNotification(
+            savedUser.getIme() + " " + savedUser.getPrezime(),
+            savedUser.getEmail(),
+            savedUser.getRola().name()
+        );
 
         return new LoginResponse(
-                jwtUtil.generateToken(user.getEmail(), user.getRola().name()),
-                user.getId(),
-                user.getEmail(),
-                user.getIme(),
-                user.getPrezime(),
-                user.getRola().name()
+            jwtUtil.generateToken(savedUser.getEmail(), savedUser.getRola().name()),
+            savedUser.getId(),
+            savedUser.getEmail(),
+            savedUser.getIme(),
+            savedUser.getPrezime(),
+            savedUser.getRola().name()
         );
     }
 
     public LoginResponse login(LoginRequest request) {
-        User user = userRepository.findByEmail(request.getEmail())
+        User user = userRepository.findByEmail(request.getEmail()).orElse(null);
+
+        if (user != null) {
+            if (!passwordEncoder.matches(request.getLozinka(), user.getLozinka())) {
+                throw new IllegalArgumentException("Pogrešan email ili lozinka.");
+            }
+
+            return new LoginResponse(
+                    jwtUtil.generateToken(user.getEmail(), user.getRola().name()),
+                    user.getId(),
+                    user.getEmail(),
+                    user.getIme(),
+                    user.getPrezime(),
+                    user.getRola().name()
+            );
+        }
+
+        Vezbac vezbac = vezbacRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new IllegalArgumentException("Pogrešan email ili lozinka."));
 
-        if (!passwordEncoder.matches(request.getLozinka(), user.getLozinka())) {
+        if (!passwordEncoder.matches(request.getLozinka(), vezbac.getLozinka())) {
             throw new IllegalArgumentException("Pogrešan email ili lozinka.");
         }
 
         return new LoginResponse(
-                jwtUtil.generateToken(user.getEmail(), user.getRola().name()),
-                user.getId(),
-                user.getEmail(),
-                user.getIme(),
-                user.getPrezime(),
-                user.getRola().name()
+                jwtUtil.generateToken(vezbac.getEmail(), "VEZBAC"),
+                vezbac.getId(),
+                vezbac.getEmail(),
+                vezbac.getIme(),
+                vezbac.getPrezime(),
+                "VEZBAC"
         );
     }
 }

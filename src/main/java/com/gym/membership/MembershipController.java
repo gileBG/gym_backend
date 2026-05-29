@@ -30,4 +30,9 @@ public class MembershipController {
     public ResponseEntity<List<Membership>> getByZaposleni(@PathVariable Long id) {
         return ResponseEntity.ok(membershipService.getByZaposleni(id));
     }
+
+    @GetMapping("/vezbac/{id}")
+    public ResponseEntity<List<Membership>> getByVezbac(@PathVariable Long id) {
+        return ResponseEntity.ok(membershipService.getByVezbac(id));
+    }
 }

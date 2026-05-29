@@ -1,5 +1,6 @@
 package com.gym.user;
 
+import com.gym.notification.AccountNotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -13,8 +14,8 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final AccountNotificationService accountNotificationService;
 
-    @PreAuthorize("hasAnyRole('ADMIN', 'FRONT_DESK', 'MENADZER', 'TRENER')")
     public List<User> getAll() {
         return userRepository.findAll();
     }
@@ -37,7 +38,15 @@ public class UserService {
         user.setRola(request.getRola());
         user.setTemp(0);
 
-        return userRepository.save(user);
+        User savedUser = userRepository.save(user);
+
+        accountNotificationService.sendNewAccountNotification(
+            savedUser.getIme() + " " + savedUser.getPrezime(),
+            savedUser.getEmail(),
+            savedUser.getRola().name()
+        );
+
+        return savedUser;
     }
 
     @PreAuthorize("hasRole('ADMIN')")

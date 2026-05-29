@@ -1,6 +1,7 @@
 package com.gym.auth;
 
 import com.gym.user.UserRepository;
+import com.gym.user.VezbacRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -22,6 +23,7 @@ public class JwtFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
     private final UserRepository userRepository;
+    private final VezbacRepository vezbacRepository;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -48,9 +50,7 @@ public class JwtFilter extends OncePerRequestFilter {
             String effectiveRole = tokenRole;
 
             if (effectiveRole == null || effectiveRole.isBlank()) {
-                effectiveRole = userRepository.findByEmail(email)
-                        .map(user -> user.getRola().name())
-                        .orElse(null);
+                effectiveRole = resolveRoleByEmail(email);
             }
 
             effectiveRole = normalizeRole(effectiveRole);
@@ -64,6 +64,13 @@ public class JwtFilter extends OncePerRequestFilter {
         }
 
         filterChain.doFilter(request, response);
+    }
+
+    private String resolveRoleByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .map(user -> user.getRola().name())
+                .or(() -> vezbacRepository.findByEmail(email).map(vezbac -> "VEZBAC"))
+                .orElse(null);
     }
 
     private String normalizeRole(String role) {

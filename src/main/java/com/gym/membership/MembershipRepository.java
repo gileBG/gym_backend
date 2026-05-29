@@ -6,4 +6,5 @@ import java.util.List;
 
 public interface MembershipRepository extends JpaRepository<Membership, Long> {
     List<Membership> findByZaposleniId(Long zaposleniId);
+    List<Membership> findByVezbacId(Long vezbacId);
 }

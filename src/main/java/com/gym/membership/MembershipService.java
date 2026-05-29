@@ -41,7 +41,14 @@ public class MembershipService {
     }
 
     @Transactional(readOnly = true)
+    @PreAuthorize("hasAnyRole('ADMIN', 'FRONT_DESK', 'MENADZER', 'TRENER')")
     public List<Membership> getByZaposleni(Long zaposleniId) {
         return membershipRepository.findByZaposleniId(zaposleniId);
+    }
+
+    @Transactional(readOnly = true)
+    @PreAuthorize("hasAnyRole('ADMIN', 'FRONT_DESK', 'MENADZER', 'TRENER', 'VEZBAC')")
+    public List<Membership> getByVezbac(Long vezbacId) {
+        return membershipRepository.findByVezbacId(vezbacId);
     }
 }
