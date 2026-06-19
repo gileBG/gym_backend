@@ -41,4 +41,7 @@ public class User {
 
     @Column(nullable = false)
     private int temp;
+
+    @Column(name = "avatar_url", length = 512)
+    private String avatarUrl;
 }

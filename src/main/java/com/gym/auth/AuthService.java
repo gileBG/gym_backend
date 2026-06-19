@@ -50,7 +50,8 @@ public class AuthService {
             savedUser.getEmail(),
             savedUser.getIme(),
             savedUser.getPrezime(),
-            savedUser.getRola().name()
+            savedUser.getRola().name(),
+            savedUser.getAvatarUrl()
         );
     }
 
@@ -68,7 +69,8 @@ public class AuthService {
                     user.getEmail(),
                     user.getIme(),
                     user.getPrezime(),
-                    user.getRola().name()
+                    user.getRola().name(),
+                    user.getAvatarUrl()
             );
         }
 
@@ -85,7 +87,8 @@ public class AuthService {
                 vezbac.getEmail(),
                 vezbac.getIme(),
                 vezbac.getPrezime(),
-                "VEZBAC"
+            "VEZBAC",
+            vezbac.getAvatarUrl()
         );
     }
 }

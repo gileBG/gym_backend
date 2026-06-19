@@ -12,4 +12,5 @@ public class LoginResponse {
     private String ime;
     private String prezime;
     private String rola;
+    private String avatarUrl;
 }

@@ -39,13 +39,23 @@ public class SecurityConfig {
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/uploads/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/roles").permitAll()
                     .requestMatchers(HttpMethod.GET, "/api/zaposleni", "/api/zaposleni/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/programi", "/api/programi/**").permitAll()
                     .requestMatchers(HttpMethod.GET, "/api/clanarine-cenovnik", "/api/clanarine-cenovnik/**").permitAll()
                     .requestMatchers(HttpMethod.GET, "/api/clanarine", "/api/clanarine/**").permitAll()
+                    .requestMatchers(HttpMethod.POST, "/api/zaposleni").hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.DELETE, "/api/zaposleni/**").hasRole("ADMIN")
                     .requestMatchers(HttpMethod.POST, "/api/programi", "/api/clanarine", "/api/clanarine-cenovnik").hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.POST, "/api/profil/avatar").authenticated()
+                    .requestMatchers(HttpMethod.POST, "/api/profil/avatar/**").hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.DELETE, "/api/profil/avatar/**").hasRole("ADMIN")
                     .requestMatchers(HttpMethod.PUT, "/api/programi/**", "/api/clanarine-cenovnik/**").hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.POST, "/api/uplate-programi").hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.PUT, "/api/uplate-programi/**").hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.DELETE, "/api/uplate-programi/**").hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.PATCH, "/api/**").authenticated()
                     .requestMatchers(HttpMethod.DELETE, "/api/programi/**", "/api/clanarine-cenovnik/**").hasRole("ADMIN")
                         .requestMatchers("/", "/h2-console/**", "/api/auth/**").permitAll()
                         .anyRequest().authenticated()
@@ -63,7 +73,7 @@ public class SecurityConfig {
             "https://localhost:*",
             "https://127.0.0.1:*"
         ));
-        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

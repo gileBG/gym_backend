@@ -36,4 +36,7 @@ public class Vezbac {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private TipClanarine tipClanarine = TipClanarine.STANDARD;
+
+    @Column(name = "avatar_url", length = 512)
+    private String avatarUrl;
 }
